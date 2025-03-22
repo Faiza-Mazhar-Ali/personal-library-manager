@@ -1,4 +1,4 @@
-import streamlit as st  # type: ignore
+aimport streamlit as st  # type: ignore
 import sqlite3
 import os
 
