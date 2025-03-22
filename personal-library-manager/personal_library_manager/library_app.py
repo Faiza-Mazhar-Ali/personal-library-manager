@@ -113,7 +113,7 @@ def delete_book(conn):
 # Home page
 def home_page():
     st.title("📚 Welcome to Your Personal Library Manager")
-    st.image("library-image.jpg", caption="Your Personal Library", use_container_width=True)
+    st.image("personal_library_manager/library-image.jpg", caption="Your Personal Library", use_container_width=True)
     st.write("""
         Use the sidebar to navigate through the app and manage your library.
         - **Add Book**: Add a new book to your library.
