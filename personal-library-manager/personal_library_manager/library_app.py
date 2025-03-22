@@ -1,5 +1,6 @@
-import streamlit as st # type: ignore
+import streamlit as st  # type: ignore
 import sqlite3
+import os
 
 # Database setup
 def init_db():
@@ -45,7 +46,13 @@ def view_books(conn):
     cursor.execute("SELECT * FROM books")
     books = cursor.fetchall()
     if books:
-        st.table(books)  # Display books in a table
+        # Adding column headers for better readability
+        st.table({"ID": [b[0] for b in books], 
+                  "Title": [b[1] for b in books], 
+                  "Author": [b[2] for b in books], 
+                  "Genre": [b[3] for b in books], 
+                  "Year": [b[4] for b in books], 
+                  "ISBN": [b[5] for b in books]})
     else:
         st.write("No books in the library yet.")
 
@@ -61,7 +68,12 @@ def search_books(conn):
         """, (f"%{search_term}%", f"%{search_term}%", f"%{search_term}%"))
         results = cursor.fetchall()
         if results:
-            st.table(results)
+            st.table({"ID": [r[0] for r in results], 
+                      "Title": [r[1] for r in results], 
+                      "Author": [r[2] for r in results], 
+                      "Genre": [r[3] for r in results], 
+                      "Year": [r[4] for r in results], 
+                      "ISBN": [r[5] for r in results]})
         else:
             st.write("No books found.")
 
@@ -81,7 +93,7 @@ def update_book(conn):
             title = st.text_input("Title", book[1])
             author = st.text_input("Author", book[2])
             genre = st.text_input("Genre", book[3])
-            year = st.number_input("Publication Year", value=book[4], min_value=0, max_value=2100, step=1)  # Fixed line
+            year = st.number_input("Publication Year", value=book[4], min_value=0, max_value=2100, step=1)
             isbn = st.text_input("ISBN", book[5])
             if st.button("Update Book"):
                 cursor.execute("""
@@ -93,6 +105,7 @@ def update_book(conn):
                 st.success("Book updated successfully!")
     else:
         st.write("No books in the library yet.")
+
 # Delete a book
 def delete_book(conn):
     st.subheader("Delete a Book")
@@ -113,7 +126,11 @@ def delete_book(conn):
 # Home page
 def home_page():
     st.title("📚 Welcome to Your Personal Library Manager")
-    st.image("library-image.jpg", caption="Your Personal Library", use_container_width=True)
+    image_path = "library-image.jpg"
+    if os.path.exists(image_path):
+        st.image(image_path, caption="Your Personal Library", use_container_width=True)
+    else:
+        st.error(f"Image file '{image_path}' not found in {os.getcwd()}. Please ensure it’s in the same directory as this script.")
     st.write("""
         Use the sidebar to navigate through the app and manage your library.
         - **Add Book**: Add a new book to your library.
@@ -143,6 +160,8 @@ def main():
         update_book(conn)
     elif menu == "Delete Book":
         delete_book(conn)
+
+    conn.close()  # Close the database connection when done
 
 if __name__ == "__main__":
     main()
