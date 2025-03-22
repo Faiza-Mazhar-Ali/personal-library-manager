@@ -1,4 +1,4 @@
-aimport streamlit as st  # type: ignore
+import streamlit as st  # type: ignore
 import sqlite3
 import os
 
@@ -46,7 +46,6 @@ def view_books(conn):
     cursor.execute("SELECT * FROM books")
     books = cursor.fetchall()
     if books:
-        # Adding column headers for better readability
         st.table({"ID": [b[0] for b in books], 
                   "Title": [b[1] for b in books], 
                   "Author": [b[2] for b in books], 
@@ -126,11 +125,36 @@ def delete_book(conn):
 # Home page
 def home_page():
     st.title("📚 Welcome to Your Personal Library Manager")
-    image_path = "library-image.jpg"
+    
+    # Get script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_dir, "library-image.jpg")
+    
+    # Debugging output
+    st.write(f"Debug: Script directory: {script_dir}")
+    st.write(f"Debug: Expected image path: {image_path}")
+    st.write(f"Debug: Current working directory: {os.getcwd()}")
+    st.write(f"Debug: Image exists at expected path: {os.path.exists(image_path)}")
+    
+    # Load image if found, otherwise try alternative approaches
     if os.path.exists(image_path):
         st.image(image_path, caption="Your Personal Library", use_container_width=True)
     else:
-        st.error(f"Image file '{image_path}' not found in {os.getcwd()}. Please ensure it’s in the same directory as this script.")
+        # Fallback 1: Try current working directory
+        fallback_path = os.path.join(os.getcwd(), "library-image.jpg")
+        st.write(f"Debug: Trying fallback path: {fallback_path}")
+        if os.path.exists(fallback_path):
+            st.image(fallback_path, caption="Your Personal Library", use_container_width=True)
+        else:
+            # Fallback 2: Look in the repo root or relative path
+            root_path = os.path.join(script_dir, "..", "library-image.jpg")
+            st.write(f"Debug: Trying root path: {root_path}")
+            if os.path.exists(root_path):
+                st.image(root_path, caption="Your Personal Library", use_container_width=True)
+            else:
+                st.error(f"Image file 'library-image.jpg' not found at {image_path}, {fallback_path}, or {root_path}. Ensure it’s correctly deployed.")
+                st.write("Continuing without the image...")
+    
     st.write("""
         Use the sidebar to navigate through the app and manage your library.
         - **Add Book**: Add a new book to your library.
